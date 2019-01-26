@@ -61,7 +61,7 @@ class Game:
         if self.ballY+5 >= 450 or self.ballY-5 <= 0:
             self.dirY = self.dirY * -1
 
-        if self.ballY <= self.board1+53 and self.ballY >= self.board1-3:
+        if self.ballY <= self.board1+55 and self.ballY >= self.board1-3:
             if self.ballX - 50 < 9 and self.ballX -50 > -5:
                 self.reward = 100
                 self.dirX = self.dirX * -1
