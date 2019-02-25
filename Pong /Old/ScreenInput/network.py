@@ -24,13 +24,23 @@ class DQNagent:
 
     def _buildModel(self):
         model = Sequential()
-        model.add(Dense(30, input_dim=self.stateSize, activation='relu'))
-        model.add(Dense(30, activation='relu'))
-        model.add(Dense(self.actionSize, activation='softmax'))
+        model.add(Dense(24, input_dim=self.stateSize, activation='relu'))
+        model.add(Dense(24, activation='relu'))
+        model.add(Dense(self.actionSize, activation='linear'))
         model.compile(loss='mse',optimizer=Adam(lr=self.learningRate))
 
-
-        return model
+        try:
+            json_file = open('/Users/Sami/Documents/Folder/Coding/Python/Machine-Learning/Pong/model.json', 'r')
+            loaded_model_json = json_file.read()
+            json_file.close()
+            loaded_model = model_from_json(loaded_model_json)
+            self.y = os.listdir("/Users/Sami/Documents/Folder/Coding/Python/Machine-Learning/Pong/Weights/")
+            print self.y[0]
+            loaded_model.load_weights("/Users/Sami/Documents/Folder/Coding/Python/Machine-Learning/Pong/Weights/" + self.y[0])
+            self.epsilon = .1
+            return model
+        except:
+            return model
 
     def recall(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -39,10 +49,8 @@ class DQNagent:
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.actionSize)
 
-        policy = self.model.predict(state)#.flatten()
-        #return np.random.choice(self.actionSize, 1, p=policy)[0]
-        return np.argmax(policy[0])
-
+        act_values = self.model.predict(state)
+        return np.argmax(act_values[0])
     def saveModel(self, i):
         if os.path.isfile(self.oldX):
             os.remove(self.oldX)
@@ -52,7 +60,7 @@ class DQNagent:
             self.x = ("/Users/Sami/Documents/Folder/Coding/Python/Machine-Learning/Pong/Weights/{}.h5".format(i))
         self.model.save_weights(self.x)
         self.oldX = self.x
-
+        
 
 
     def replay(self, batchSize):
